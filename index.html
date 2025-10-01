@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Регистрация</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+</head>
+<body>
+    <div class="container">
+        <h2>Регистрация</h2>
+        <input type="text" id="phone" placeholder="Номер телефона" />
+        <input type="text" id="username" placeholder="Логин" />
+        <input type="password" id="password" placeholder="Пароль" />
+        <button onclick="submitForm()">Зарегистрироваться</button>
+        <p id="result"></p>
+    </div>
+
+    <script>
+        const tg = window.Telegram.WebApp;
+        tg.expand();
+
+        function submitForm() {
+            const phone = document.getElementById("phone").value;
+            const username = document.getElementById("username").value;
+            const password = document.getElementById("password").value;
+            const telegram_id = tg.initDataUnsafe.user?.id;
+
+            fetch("http://localhost:8000/register", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ telegram_id, phone, username, password })
+            })
+            .then(res => res.json())
+            .then(data => {
+                const result = document.getElementById("result");
+                if (data.status === "ok") {
+                    result.innerText = "Регистрация успешна!";
+                    tg.close();
+                } else {
+                    result.innerText = "Ошибка: " + data.message;
+                }
+            });
+        }
+    </script>
+</body>
+</html>
